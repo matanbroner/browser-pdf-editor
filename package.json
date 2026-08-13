@@ -1,0 +1,10 @@
+{
+  "name": "paperplane-pdf-editor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local-first browser PDF editor",
+  "scripts": {
+    "dev": "python3 -m http.server 8080",
+    "start": "python3 -m http.server 8080"
+  }
+}

@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Paperplane — Local PDF Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="tool-select">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">P</div>
+      <div>
+        <div class="brand-name">Paperplane</div>
+        <div id="docMeta" class="brand-subtitle">Local PDF editor</div>
+      </div>
+    </div>
+
+    <div class="history-controls" aria-label="History controls">
+      <button id="undoBtn" class="icon-btn" title="Undo" disabled>↶</button>
+      <button id="redoBtn" class="icon-btn" title="Redo" disabled>↷</button>
+    </div>
+
+    <div class="topbar-actions">
+      <label class="btn btn-secondary file-btn">
+        <span>Open PDF</span>
+        <input id="fileInput" type="file" accept="application/pdf" hidden />
+      </label>
+      <button id="exportBtn" class="btn btn-primary" disabled>Export PDF</button>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="left-rail">
+      <div class="rail-heading">Pages</div>
+      <div id="thumbnails" class="thumbnails"></div>
+      <div id="thumbEmpty" class="rail-empty">Open a PDF to see page thumbnails.</div>
+    </aside>
+
+    <main class="editor-area">
+      <div class="floating-toolbar" aria-label="Editing tools">
+        <button class="tool active" data-tool="select" title="Select"><span class="tool-icon">↖</span><span>Select</span></button>
+        <span class="toolbar-divider"></span>
+        <button class="tool" data-tool="add" title="Add text"><span class="tool-icon">T</span><span>Text</span></button>
+        <button class="tool" data-tool="replace" title="Replace detected text"><span class="tool-icon">T✎</span><span>Edit text</span></button>
+        <button class="tool" data-tool="highlight" title="Highlight"><span class="tool-icon">▰</span><span>Highlight</span></button>
+        <button class="tool" data-tool="redact" title="Redact"><span class="tool-icon">■</span><span>Redact</span></button>
+        <button class="tool" data-tool="rectangle" title="Rectangle"><span class="tool-icon">□</span><span>Shape</span></button>
+        <button id="imageToolBtn" class="tool" title="Add image"><span class="tool-icon">▧</span><span>Image</span></button>
+        <input id="imageInput" type="file" accept="image/png,image/jpeg" hidden />
+        <span class="toolbar-divider"></span>
+        <div class="zoom-group">
+          <button id="zoomOutBtn" class="icon-btn small">−</button>
+          <button id="zoomLabel" class="zoom-label">100%</button>
+          <button id="zoomInBtn" class="icon-btn small">+</button>
+        </div>
+      </div>
+
+      <section id="viewer" class="viewer-wrap">
+        <div id="emptyState" class="empty-state">
+          <div class="empty-icon">PDF</div>
+          <h1>Edit PDFs without uploading them</h1>
+          <p>Open a PDF and make text, highlight, redaction, image, and shape edits entirely in your browser.</p>
+          <label class="btn btn-primary btn-large">
+            Choose a PDF
+            <input id="emptyFileInput" type="file" accept="application/pdf" hidden />
+          </label>
+          <div class="privacy-note"><span>●</span> Files stay on this device</div>
+        </div>
+        <div id="pages" class="pages"></div>
+      </section>
+    </main>
+
+    <aside class="right-panel">
+      <div class="panel-heading-row">
+        <div>
+          <div class="eyebrow">Inspector</div>
+          <h2 id="inspectorTitle">Document</h2>
+        </div>
+        <button id="closeSelectionBtn" class="icon-btn subtle hidden" title="Deselect">×</button>
+      </div>
+
+      <section id="documentPanel" class="panel-section">
+        <div class="info-card">
+          <div class="info-icon">⌘</div>
+          <div>
+            <strong>Local-first editing</strong>
+            <p>The PDF is rendered and modified in your browser. Export creates a new file.</p>
+          </div>
+        </div>
+        <div class="stats-grid">
+          <div><span>Pages</span><strong id="pageCountStat">—</strong></div>
+          <div><span>Edits</span><strong id="editCountStat">0</strong></div>
+        </div>
+      </section>
+
+      <section id="selectionPanel" class="panel-section hidden">
+        <div id="textControls">
+          <label class="field-label" for="selectedText">Content</label>
+          <textarea id="selectedText" class="control textarea" rows="4"></textarea>
+        </div>
+
+        <div class="two-col" id="fontControls">
+          <label>
+            <span class="field-label">Size</span>
+            <div class="input-suffix"><input id="fontSize" class="control" type="number" min="6" max="144" value="18"><span>pt</span></div>
+          </label>
+          <label>
+            <span class="field-label">Color</span>
+            <div class="color-row"><input id="textColor" type="color" value="#111827"><span id="colorValue">#111827</span></div>
+          </label>
+        </div>
+
+        <div id="opacityControl">
+          <label class="field-label" for="opacityRange">Opacity</label>
+          <div class="range-row"><input id="opacityRange" type="range" min="10" max="100" value="100"><span id="opacityValue">100%</span></div>
+        </div>
+
+        <div class="position-grid">
+          <label><span class="field-label">X</span><input id="posX" class="control" type="number" step="1"></label>
+          <label><span class="field-label">Y</span><input id="posY" class="control" type="number" step="1"></label>
+          <label id="widthField"><span class="field-label">Width</span><input id="itemWidth" class="control" type="number" min="1" step="1"></label>
+          <label id="heightField"><span class="field-label">Height</span><input id="itemHeight" class="control" type="number" min="1" step="1"></label>
+        </div>
+
+        <button id="deleteBtn" class="btn btn-danger btn-block">Delete selected item</button>
+      </section>
+
+      <section class="panel-section shortcuts">
+        <div class="eyebrow">Shortcuts</div>
+        <div class="shortcut-row"><span>Undo</span><kbd>⌘ Z</kbd></div>
+        <div class="shortcut-row"><span>Redo</span><kbd>⇧ ⌘ Z</kbd></div>
+        <div class="shortcut-row"><span>Delete</span><kbd>⌫</kbd></div>
+      </section>
+    </aside>
+  </div>
+
+  <div id="replaceDialog" class="dialog-backdrop hidden">
+    <form id="replaceForm" class="dialog">
+      <div class="dialog-kicker">Detected PDF text</div>
+      <h2>Replace text</h2>
+      <p>This visually covers the original text and writes replacement text in its place.</p>
+      <label><span>Original</span><input id="originalText" class="control" type="text" disabled></label>
+      <label><span>Replacement</span><textarea id="replacementText" class="control textarea" rows="3" autofocus></textarea></label>
+      <div class="dialog-actions">
+        <button type="button" id="cancelReplace" class="btn btn-secondary">Cancel</button>
+        <button type="submit" class="btn btn-primary">Replace text</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
